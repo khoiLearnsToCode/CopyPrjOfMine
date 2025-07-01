@@ -1,0 +1,25 @@
+mario(obj) is created inside gameworld class
+everytime you want to access mario, use reference or pointer to mario in gameworld
+
+For now, we use mario as our character in the game. Later, we will create a class Character
+that will be the base class for all characters in the game.
+Mario will inherit from Character class.
+Need to fix all the references to mario in the code to use the Character class instead.
+
+map is created inside gameworld class
+map stores a reference to mario
+
+resource manager needs to load textures for tiles (currently not working)
+
+nothing new3
+
+
+>>>>>>>>>>>PMK 25/06/25 >>>>>>>>>>>>>>>>>
+if you want to get the obj of the resource manager, you can use the following code:
+ResourceManager resourceManager = ResourceManager::getInstance();
+
+>>>>>>>>>>>PMK 27/06/25 >>>>>>>>>>>>>>>>>
+BeginDrawing() is inside GameWorld::draw()
+
+
+
