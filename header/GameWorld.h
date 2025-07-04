@@ -13,7 +13,7 @@ class Mario;
 
 class GameWorld : public virtual Drawable {
 
-    TitleScreen* titleScreen;
+    TitleScreen* titleScreen=nullptr;
 
     //Mario mario;
     Map map;

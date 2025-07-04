@@ -74,6 +74,7 @@ ButtonTextTexture::ButtonTextTexture(const std::string& text, const char* key, V
     UnloadImage(img2); 
 
     hitbox = { pos.x, pos.y, (float)btnTexture1.width, (float)btnTexture1.height };
+    //std::cout << "ButtonTextTexture pos: " << pos.x << ", " << pos.y << std::endl;
 }
 
 ButtonTextTexture::~ButtonTextTexture() {
@@ -83,8 +84,9 @@ ButtonTextTexture::~ButtonTextTexture() {
 
 void ButtonTextTexture::draw() {
     update();  
-    DrawTextureEx(*currentTexture, pos, 0.0f, 1.0f, WHITE);
+    DrawTextureEx(*currentTexture, pos, 0.0f, /*1.0f*/btnScale, WHITE);
     DrawTextEx(font, text.c_str(), pos, fontSize * btnScale, 1, textColor);
+    //std::cout << "Draw pos: " << pos.x << ", " << pos.y << std::endl;
 }
 
 void ButtonTextTexture::update() {
