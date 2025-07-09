@@ -14,7 +14,9 @@ GameWindow::GameWindow(int width, int height, std::string title) :
     title(std::move(title)),
     targetFPS(60),
     initAudio(true),
+    gw(),
     camera(Camera2D()),
+    careTaker(&gw),
     initialized(false) 
 {}
 
@@ -41,6 +43,7 @@ void GameWindow::init() {
 
         GameWorld::loadResources();
 
+        gw.initScreens();
         initialized = true;
 
         camera.target = Vector2{ 0, 0 };

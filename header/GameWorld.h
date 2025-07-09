@@ -6,19 +6,29 @@ class Mario;
 #include "GameState.h"
 #include "Map.h"
 #include "ResourceManager.h"
+#include "Screen.h"
 #include "TitleScreen.h"
-//#include "Mario.h"
+#include "MenuScreen.h"
+#include "SettingScreen.h"
+#include "CareTaker.h"
+#include "Memento.h"
+#include "Mario.h"
 #include "raylib.h"
 #include <iostream>
 
 class GameWorld : public virtual Drawable {
 
-    TitleScreen* titleScreen=nullptr;
+    TitleScreen* titleScreen;
+    MenuScreen* menuScreen;
+    SettingScreen* settingScreen;
 
-    //Mario mario;
+    friend class CareTaker;
+    
+
+    Mario mario;
     Map map;
     Camera2D* camera;
-    //bool showControls;
+    bool settingBoardIsOpen;
     //GameState stateBeforePause;
     int remainingTimePointCount;
 
@@ -30,21 +40,19 @@ class GameWorld : public virtual Drawable {
     // float irisOutTime;
     // float irisOutAcum;
 
+    Memento* dataFromGameWorldToSave() const;
+    void restoreDataFromMemento(const Memento* memento) const;
+
 public:
 
     // static bool immortalMario;
     static GameState state;
     static float gravity;
 
-    /**
-     * @brief Construct a new GameWorld object.
-     */
     GameWorld();
-
-    /**
-     * @brief Destroy the GameWorld object.
-     */
     ~GameWorld() override;
+
+    void initScreens();
 
     /**
      * @brief Reads user input and updates the state of the game.

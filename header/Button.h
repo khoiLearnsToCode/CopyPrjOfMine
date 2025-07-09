@@ -23,10 +23,11 @@ class Button : public virtual Drawable {
         virtual ~Button() = default;
         virtual void draw() = 0;
         virtual bool isPressed();
+        virtual bool isReleased();
 };
 
 
-class ButtonTexture : public virtual Button {
+class ButtonTexture : public Button {
     Texture2D btnTexture;
     void update() override;
 
@@ -38,7 +39,7 @@ class ButtonTexture : public virtual Button {
 
 };
 
-class ButtonText : public virtual Button {
+class ButtonText : public Button {
        
     virtual void update() override;
 
@@ -59,12 +60,14 @@ class ButtonTextTexture : public ButtonText {
     Texture2D btnTexture1;
     Texture2D btnTexture2;
     Texture2D* currentTexture;
+    const Vector2 truePos;
 
     void update() override;
 
     public:
         ButtonTextTexture() = default;
         ButtonTextTexture(const std::string& text, const char* key, Vector2 position, float scale, Color color, Font font, float fontSize);
+        ButtonTextTexture(const char* key, Vector2 position, float scale);
         ~ButtonTextTexture() override;
         void draw() override;
 };

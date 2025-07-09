@@ -5,29 +5,123 @@ GameState GameWorld::state = GAME_STATE_TITLE_SCREEN;
 float GameWorld::gravity = 20;
 
 GameWorld::GameWorld() :
-    map(1, true, this),
+    mario( 
+        {0,0},          // position
+        {32, 40},       // dimention
+        {0, 0},         // velocity
+        {0, 0, 0, 255}, // color
+        260,            // speedX
+        360,            // maxSpeedX
+        -600,           // jumpSpeed
+        false           
+    ),
+    map(mario, 1, true, this),
     camera(nullptr),
+    settingBoardIsOpen(false),
     remainingTimePointCount(0),
-    titleScreen(nullptr) {}
+    titleScreen(nullptr),
+    menuScreen(nullptr),
+    settingScreen(nullptr) {
+
+        mario.setGameWorld(this);
+        mario.setMap(&map);
+    }
 
 GameWorld::~GameWorld() {
     if (titleScreen != nullptr) {
         delete titleScreen;
         titleScreen = nullptr;
     }
+
+    if (menuScreen != nullptr) {
+        delete menuScreen;
+        menuScreen = nullptr;
+    }
+
+    if (settingScreen != nullptr) {
+        delete settingScreen;
+        settingScreen = nullptr;
+    }
+}
+
+Memento* GameWorld::dataFromGameWorldToSave() const {
+    Data data(map.getId(), remainingTimePointCount, mario.getPoints(), mario.getLives());
+    return new ConcreteMemento(data);
+}
+
+void GameWorld::restoreDataFromMemento(const Memento* memento) const {
+    // Implement later
+    // Data data = memento->getData();
+    // map.loadFromJsonFile(data.mapID, true);
+    // map.setRemainingTime(data.remainingTime);
+    // map.setScore(data.score);
+    // map.setLives(data.lives);
+}
+
+void GameWorld::initScreens() {
+    if (titleScreen == nullptr) {
+        titleScreen = new TitleScreen();
+    }
+
+    if (menuScreen == nullptr) {
+        menuScreen = new MenuScreen();
+    }
+
+    if (settingScreen == nullptr) {
+        settingScreen = new SettingScreen();
+    }
 }
 
 void GameWorld::inputAndUpdate() {
+
+    if (settingBoardIsOpen){
+        settingScreen->update(); 
+
+        if (settingScreen->settingBoardShouldClose()) {
+        settingBoardIsOpen = false;
+        }
+
+        return;
+    }
+
+    // If setting board is not open, handle input for other states
+
+    const float xc = GetScreenWidth() / 2.0;
+    const float yc = GetScreenHeight() / 2.0;
+    const float pxc = mario.getX() + mario.getWidth() / 2.0;
+    const float pyc = mario.getY() + mario.getHeight() / 2.0;
+    
+    camera->offset.x = xc;
+
+    if ( pxc < xc ) {
+        camera->target.x = xc + Map::TILE_WIDTH;
+        map.setMarioOffset( 0 );         // x parallax
+    } else if ( pxc >= map.getMaxWidth() - xc - Map::TILE_WIDTH ) {
+        camera->target.x = map.getMaxWidth() - GetScreenWidth();
+        camera->offset.x = 0;
+    } else {
+        camera->target.x = pxc + Map::TILE_WIDTH;
+        map.setMarioOffset( pxc - xc );  // x parallax
+    }
+
+    camera->offset.y = yc;
+
+    if ( pyc < yc ) {
+        camera->target.y = yc + Map::TILE_WIDTH;
+    } else if ( pyc >= map.getMaxHeight() - yc - Map::TILE_WIDTH ) {
+        camera->target.y = map.getMaxHeight() - GetScreenHeight();
+        camera->offset.y = 0;
+    } else {
+        camera->target.y = pyc + Map::TILE_WIDTH;
+    }
+
     if (state == GAME_STATE_TITLE_SCREEN) {
-        if (titleScreen == nullptr) {
-            titleScreen = new TitleScreen();
+
+        if (titleScreen->getStartButton().isReleased()) {
+            state = GAME_STATE_MENU_SCREEN;
         }
 
-        if (titleScreen->getStartButton().isPressed()) {
-            state = GAME_STATE_PLAYING;
-        }
-
-        if (titleScreen->getCreditButton().isPressed()) {
+        if (titleScreen->getCreditButton().isReleased()) {
             state = GAME_STATE_CREDITS_SCREEN;
         }
     }
@@ -44,13 +138,34 @@ void GameWorld::inputAndUpdate() {
             state = GAME_STATE_TITLE_SCREEN;
         }
     }
+
+    else if (state == GAME_STATE_MENU_SCREEN) {
+
+        if (menuScreen->getButton("NEW GAME")->isReleased()) {
+            state = GAME_STATE_PLAYING;
+        }
+
+        if (menuScreen->getButton("LOAD GAME")->isReleased()) {
+            // implement later
+            std::cout << "Load Game button pressed. Implement load game functionality later." << std::endl;
+        }
+
+        if (menuScreen->getButton("SETTINGS")->isReleased()) {
+            settingBoardIsOpen = true;
+        }
+
+        if (menuScreen->getButton("EXIT")->isReleased()) {
+            state = GAME_STATE_TITLE_SCREEN;
+        }
+    }
+
     else
     {
         // Handle input and update the map
-        map.loadFromJsonFile(1, true);
+        map.loadFromJsonFile(true);
+        mario.update();
     }
-    
-     
+      
 }
 
 void GameWorld::draw() {
@@ -72,9 +187,19 @@ void GameWorld::draw() {
                                         (GetScreenHeight() - textures["credit"].height) / 2, WHITE);
     }
 
+    else if (state == GAME_STATE_MENU_SCREEN) {
+        menuScreen->draw();
+    }
+
     // Draw the map
     else {
+        BeginMode2D(*camera);
         map.draw();
+        EndMode2D();
+    }
+
+    if (settingBoardIsOpen) {
+        settingScreen->draw();
     }
 
     EndDrawing();
@@ -98,12 +223,16 @@ Camera2D* GameWorld::getCamera() const {
 }
 
 void GameWorld::resetMap() {
+    mario.reset(true);
     map.reset();
     state = GAME_STATE_PLAYING;
 }
 
 void GameWorld::resetGame() {
-    //implement later
+    mario.resetAll();
+    map.first();
+    map.reset();
+    state = GAME_STATE_TITLE_SCREEN;
 }
 
 void GameWorld::nextMap() {
