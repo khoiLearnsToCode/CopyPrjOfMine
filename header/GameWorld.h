@@ -5,11 +5,18 @@ class Mario;
 #include "Drawable.h"
 #include "GameState.h"
 #include "Map.h"
+#include "Button.h"
 #include "ResourceManager.h"
 #include "Screen.h"
 #include "TitleScreen.h"
 #include "MenuScreen.h"
+#include "MapEditorScreen1.h"
+#include "MapEditorScreen2.h"
+#include "SelectCharacterScreen.h"
 #include "SettingScreen.h"
+#include "HelpingScreen.h"
+#include "GuardScreen.h"
+#include "LeaderBoardScreen.h"
 #include "CareTaker.h"
 #include "Memento.h"
 #include "Mario.h"
@@ -20,28 +27,49 @@ class GameWorld : public virtual Drawable {
 
     TitleScreen* titleScreen;
     MenuScreen* menuScreen;
+    MapEditorScreen1* mapEditorScreen1;
+    MapEditorScreen2* mapEditorScreen2;
+    SelectCharacterScreen* selectCharacterScreen;
     SettingScreen* settingScreen;
+    HelpingScreen* helpingScreen;
+    GuardScreen* guardScreen;
+    LeaderBoardScreen* leaderBoardScreen;
 
     friend class CareTaker;
-    
+    friend class SettingScreen;
 
     Mario mario;
     Map map;
     Camera2D* camera;
     bool settingBoardIsOpen;
-    //GameState stateBeforePause;
+    bool helpingBoardIsOpen;
+    bool leaderBoardIsOpen;
+    GameState stateBeforePause;
     int remainingTimePointCount;
+    int totalPlayedTime;
 
-    // bool pauseMusic;
-    // bool pauseMarioUpdate;
+    bool pauseMusic;
+    bool pauseMario;
     // bool showOverlayOnPause;
 
-    // bool irisOutFinished;
-    // float irisOutTime;
-    // float irisOutAcum;
+    bool outroFinished;
+    float outroTime;
+    float outroAcum;
 
-    Memento* dataFromGameWorldToSave() const;
+    ButtonTextTexture* settingButton;
+    ButtonTextTexture* helpButton;
+
+    // Pause-game buttons cooldown
+    float pauseButtonsCooldownAcum;
+    float pauseButtonsCooldownTime;
+
+    // Distance-based collision detection threshold
+    const float maxDistForCollisionCheck;
+
+    Memento* dataFromGameWorldToSave();
     void restoreDataFromMemento(const Memento* memento) const;
+
+    Memento* dataFromGameWorldToLeaderboard();
 
 public:
 
@@ -52,39 +80,31 @@ public:
     GameWorld();
     ~GameWorld() override;
 
-    void initScreens();
+    void initScreensAndButtons();
 
-    /**
-     * @brief Reads user input and updates the state of the game.
-     */
+    // get user input, update game state
     void inputAndUpdate();
-
-    /**
-     * @brief Draws the state of the game.
-     */
     void draw() override;
 
-    /**
-     * @brief Load game resources like images, textures, sounds, fonts, shaders,
-     * etc.
-     * Should be called inside the constructor.
-     */
     static void loadResources();
-
-    /**
-     * @brief Unload the once loaded game resources.
-     * Should be called inside the destructor.
-     */
     static void unloadResources();
 
     void setCamera(Camera2D* camera);
     Camera2D* getCamera() const;
 
+    int getTotalPlayedTime() const;
+
+    void addToTotalPlayedTime(float timeToAdd);
+
     void resetMap();
     void resetGame();
     void nextMap();
-    void pauseGame(bool playPauseSFX, bool pauseMusic, bool showOverlay, bool pauseMarioUpdate);
+    void pauseGame(bool playPauseSFX, bool pauseMusic, bool pauseMario, bool showSettingBoard, bool showHelpingBoard);
     void unpauseGame();
+    void showGuardScreen(GuardAction action);
+
+    // Distance threshold getter for collision optimization
+    float getMaxDistForCollisionCheck() const;
 
     // bool isPauseMusicOnPause() const;
     // bool isShowOverlayOnPause() const;

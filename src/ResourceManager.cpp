@@ -1,6 +1,9 @@
 #include "ResourceManager.h"
 #include <iostream>
 
+
+ResourceManager::ResourceManager() : musicVolume(1.0f), sfxVolume(1.0f) {}
+
 // Initialize static instance pointer
 ResourceManager* ResourceManager::instance = nullptr;
 
@@ -40,12 +43,39 @@ void ResourceManager::unloadResources() {
     unloadMusics();
     unloadFonts();
 }
+
 // Implementation of loading textures
 void ResourceManager::loadTextures() {
 
     if (textures.empty()) {
 
         // load textures...
+
+        std::vector<Color> flowerMarioReplacePallete;
+        flowerMarioReplacePallete.push_back( {216, 160, 56, 255} );   // 0xd8a038ff
+        flowerMarioReplacePallete.push_back( {248, 216, 0, 255} );    // 0xf8d800ff
+        flowerMarioReplacePallete.push_back( {248, 216, 112, 255} );  // 0xf8d870ff
+        flowerMarioReplacePallete.push_back( {248, 248, 152, 255} );  // 0xf8f898ff
+        flowerMarioReplacePallete.push_back( {80, 0, 0, 255} );       // 0x500000ff
+        flowerMarioReplacePallete.push_back( {72, 72, 72, 255} );     // 0x484848ff
+        flowerMarioReplacePallete.push_back( {248, 64, 112, 255} );   // 0xf84070ff
+        flowerMarioReplacePallete.push_back( {248, 248, 248, 255} );  // 0xf8f8f8ff
+        flowerMarioReplacePallete.push_back( {32, 48, 136, 255} );    // 0x203088ff
+        flowerMarioReplacePallete.push_back( {64, 0, 0, 255} );       // 0x400000ff
+        flowerMarioReplacePallete.push_back( {64, 128, 152, 255} );   // 0x408098ff
+        flowerMarioReplacePallete.push_back( {184, 0, 0, 255} );      // 0xb80000ff
+        flowerMarioReplacePallete.push_back( {128, 216, 200, 255} );  // 0x80d8c8ff
+        flowerMarioReplacePallete.push_back( {248, 0, 0, 255} );      // 0xf80000ff
+        flowerMarioReplacePallete.push_back( {176, 40, 96, 255} );    // 0xb02860ff
+        flowerMarioReplacePallete.push_back( {216, 216, 168, 255} );  // 0xd8d8a8ff
+        flowerMarioReplacePallete.push_back( {248, 112, 104, 255} );  // 0xf87068ff
+        flowerMarioReplacePallete.push_back( {248, 112, 24, 255} );   // 0xf87018ff
+
+        // Mario and Luigi textures
+        textures["Luigi"] = LoadTexture("../resource/graphic/sprites/luigi/Luigi.png");
+        Texture temp = LoadTexture("../resource/graphic/sprites/mario/Mario.png");
+        textures["Mario"] = texture2DFlipHorizontal(temp);
+        UnloadTexture(temp);
 
         // small mario
         textures["smallMario0R"] = LoadTexture("../resource/graphic/sprites/mario/SmallMario_0.png");
@@ -86,12 +116,12 @@ void ResourceManager::loadTextures() {
         textures["transitioningMarioSS1L"] = texture2DFlipHorizontal(textures["transitioningMarioSS1R"]);
         textures["transitioningMarioSS2L"] = texture2DFlipHorizontal(textures["transitioningMarioSS2R"]);
 
-        //textures["transitioningMarioSF0R"] = textureColorReplace(textures["transitioningMarioSS0R"], flowerMarioReplacePallete);
-        //textures["transitioningMarioSF1R"] = textureColorReplace(textures["transitioningMarioSS1R"], flowerMarioReplacePallete);
-        //textures["transitioningMarioSF2R"] = textureColorReplace(textures["transitioningMarioSS2R"], flowerMarioReplacePallete);
-        //textures["transitioningMarioSF0L"] = texture2DFlipHorizontal(textures["transitioningMarioSF0R"]);
-        //textures["transitioningMarioSF1L"] = texture2DFlipHorizontal(textures["transitioningMarioSF1R"]);
-        //textures["transitioningMarioSF2L"] = texture2DFlipHorizontal(textures["transitioningMarioSF2R"]);
+        textures["transitioningMarioSF0R"] = textureColorReplace(textures["transitioningMarioSS0R"], flowerMarioReplacePallete);
+        textures["transitioningMarioSF1R"] = textureColorReplace(textures["transitioningMarioSS1R"], flowerMarioReplacePallete);
+        textures["transitioningMarioSF2R"] = textureColorReplace(textures["transitioningMarioSS2R"], flowerMarioReplacePallete);
+        textures["transitioningMarioSF0L"] = texture2DFlipHorizontal(textures["transitioningMarioSF0R"]);
+        textures["transitioningMarioSF1L"] = texture2DFlipHorizontal(textures["transitioningMarioSF1R"]);
+        textures["transitioningMarioSF2L"] = texture2DFlipHorizontal(textures["transitioningMarioSF2R"]);
 
         // super mario
         textures["superMario0R"] = LoadTexture("../resource/graphic/sprites/mario/SuperMario_0.png");
@@ -129,39 +159,39 @@ void ResourceManager::loadTextures() {
         textures["superMario0TfL"] = texture2DFlipHorizontal(textures["superMario0TfR"]);
 
         // flower mario
-        //textures["flowerMario0R"] = textureColorReplace(textures["superMario0R"], flowerMarioReplacePallete);
-        //textures["flowerMario1R"] = textureColorReplace(textures["superMario1R"], flowerMarioReplacePallete);
-        //textures["flowerMario2R"] = textureColorReplace(textures["superMario2R"], flowerMarioReplacePallete);
-        //textures["flowerMario0L"] = texture2DFlipHorizontal(textures["flowerMario0R"]);
-        //textures["flowerMario1L"] = texture2DFlipHorizontal(textures["flowerMario1R"]);
-        //textures["flowerMario2L"] = texture2DFlipHorizontal(textures["flowerMario2R"]);
+        textures["flowerMario0R"] = textureColorReplace(textures["superMario0R"], flowerMarioReplacePallete);
+        textures["flowerMario1R"] = textureColorReplace(textures["superMario1R"], flowerMarioReplacePallete);
+        textures["flowerMario2R"] = textureColorReplace(textures["superMario2R"], flowerMarioReplacePallete);
+        textures["flowerMario0L"] = texture2DFlipHorizontal(textures["flowerMario0R"]);
+        textures["flowerMario1L"] = texture2DFlipHorizontal(textures["flowerMario1R"]);
+        textures["flowerMario2L"] = texture2DFlipHorizontal(textures["flowerMario2R"]);
 
-        //textures["flowerMario0RuR"] = textureColorReplace(textures["superMario0RuR"], flowerMarioReplacePallete);
-        //textures["flowerMario1RuR"] = textureColorReplace(textures["superMario1RuR"], flowerMarioReplacePallete);
-        //textures["flowerMario2RuR"] = textureColorReplace(textures["superMario2RuR"], flowerMarioReplacePallete);
-        //textures["flowerMario0RuL"] = texture2DFlipHorizontal(textures["flowerMario0RuR"]);
-        //textures["flowerMario1RuL"] = texture2DFlipHorizontal(textures["flowerMario1RuR"]);
-        //textures["flowerMario2RuL"] = texture2DFlipHorizontal(textures["flowerMario2RuR"]);
+        textures["flowerMario0RuR"] = textureColorReplace(textures["superMario0RuR"], flowerMarioReplacePallete);
+        textures["flowerMario1RuR"] = textureColorReplace(textures["superMario1RuR"], flowerMarioReplacePallete);
+        textures["flowerMario2RuR"] = textureColorReplace(textures["superMario2RuR"], flowerMarioReplacePallete);
+        textures["flowerMario0RuL"] = texture2DFlipHorizontal(textures["flowerMario0RuR"]);
+        textures["flowerMario1RuL"] = texture2DFlipHorizontal(textures["flowerMario1RuR"]);
+        textures["flowerMario2RuL"] = texture2DFlipHorizontal(textures["flowerMario2RuR"]);
 
-        //textures["flowerMario0JuR"] = textureColorReplace(textures["superMario0JuR"], flowerMarioReplacePallete);
-        //textures["flowerMario0JuL"] = texture2DFlipHorizontal(textures["flowerMario0JuR"]);
+        textures["flowerMario0JuR"] = textureColorReplace(textures["superMario0JuR"], flowerMarioReplacePallete);
+        textures["flowerMario0JuL"] = texture2DFlipHorizontal(textures["flowerMario0JuR"]);
 
-        //textures["flowerMario0JuRuR"] = textureColorReplace(textures["superMario0JuRuR"], flowerMarioReplacePallete);
-        //textures["flowerMario0JuRuL"] = texture2DFlipHorizontal(textures["flowerMario0JuRuR"]);
+        textures["flowerMario0JuRuR"] = textureColorReplace(textures["superMario0JuRuR"], flowerMarioReplacePallete);
+        textures["flowerMario0JuRuL"] = texture2DFlipHorizontal(textures["flowerMario0JuRuR"]);
 
-        //textures["flowerMario0FaR"] = textureColorReplace(textures["superMario0FaR"], flowerMarioReplacePallete);
-        //textures["flowerMario0FaL"] = texture2DFlipHorizontal(textures["flowerMario0FaR"]);
+        textures["flowerMario0FaR"] = textureColorReplace(textures["superMario0FaR"], flowerMarioReplacePallete);
+        textures["flowerMario0FaL"] = texture2DFlipHorizontal(textures["flowerMario0FaR"]);
 
-        //textures["flowerMario0LuR"] = textureColorReplace(textures["superMario0LuR"], flowerMarioReplacePallete);
-        //textures["flowerMario0LuL"] = texture2DFlipHorizontal(textures["flowerMario0LuR"]);
+        textures["flowerMario0LuR"] = textureColorReplace(textures["superMario0LuR"], flowerMarioReplacePallete);
+        textures["flowerMario0LuL"] = texture2DFlipHorizontal(textures["flowerMario0LuR"]);
 
-        //textures["flowerMario0DuR"] = textureColorReplace(textures["superMario0DuR"], flowerMarioReplacePallete);
-        //textures["flowerMario0DuL"] = texture2DFlipHorizontal(textures["flowerMario0DuR"]);
+        textures["flowerMario0DuR"] = textureColorReplace(textures["superMario0DuR"], flowerMarioReplacePallete);
+        textures["flowerMario0DuL"] = texture2DFlipHorizontal(textures["flowerMario0DuR"]);
 
-        //textures["flowerMario0Vic"] = textureColorReplace(textures["superMario0Vic"], flowerMarioReplacePallete);
+        textures["flowerMario0Vic"] = textureColorReplace(textures["superMario0Vic"], flowerMarioReplacePallete);
 
-        //textures["flowerMario0TfR"] = textureColorReplace(textures["superMario0TfR"], flowerMarioReplacePallete);
-        //textures["flowerMario0TfL"] = texture2DFlipHorizontal(textures["flowerMario0TfR"]);
+        textures["flowerMario0TfR"] = textureColorReplace(textures["superMario0TfR"], flowerMarioReplacePallete);
+        textures["flowerMario0TfL"] = texture2DFlipHorizontal(textures["flowerMario0TfR"]);
 
         // fireball
         textures["fireball0R"] = LoadTexture("../resource/graphic/sprites/mario/FlowerMarioFireball_0.png");
@@ -206,34 +236,40 @@ void ResourceManager::loadTextures() {
         ImageResize(&titleScreenImage, GetScreenWidth(), GetScreenHeight());
         textures["title_screen"] = LoadTextureFromImage(titleScreenImage);
         UnloadImage(titleScreenImage);
+        Image selectCharacterImage = LoadImage("../resource/graphic/backgrounds/select_character_screen.png");
+        ImageResize(&selectCharacterImage, GetScreenWidth(), GetScreenHeight());
+        ImageFlipHorizontal(&selectCharacterImage);
+        textures["select_character_screen"] = LoadTextureFromImage(selectCharacterImage);
+        UnloadImage(selectCharacterImage);
         textures["background1"] = LoadTexture("../resource/graphic/backgrounds/background1.png");
-        //textures["background2"] = LoadTexture("resources/graphics/backgrounds/background2.png");
-        //textures["background3"] = LoadTexture("resources/graphics/backgrounds/background3.png");
-        //textures["background4"] = LoadTexture("resources/graphics/backgrounds/background4.png");
-        //textures["background5"] = LoadTexture("resources/graphics/backgrounds/background5.png");
-        //textures["background6"] = LoadTexture("resources/graphics/backgrounds/background6.png");
-        //textures["background7"] = LoadTexture("resources/graphics/backgrounds/background7.png");
-        //textures["background8"] = LoadTexture("resources/graphics/backgrounds/background8.png");
-        //textures["background9"] = LoadTexture("resources/graphics/backgrounds/background9.png");
-        //textures["background10"] = LoadTexture("resources/graphics/backgrounds/background10.png");
+        textures["background2"] = LoadTexture("../resource/graphic/backgrounds/background2.png");
+        textures["background3"] = LoadTexture("../resource/graphic/backgrounds/background3.png");
+        textures["background4"] = LoadTexture("../resource/graphic/backgrounds/background4.png");
+        textures["background5"] = LoadTexture("../resource/graphic/backgrounds/background5.png");
+        textures["background6"] = LoadTexture("../resource/graphic/backgrounds/background6.png");
+        textures["background7"] = LoadTexture("../resource/graphic/backgrounds/background7.png");
+        textures["background8"] = LoadTexture("../resource/graphic/backgrounds/background8.png");
+        textures["background9"] = LoadTexture("../resource/graphic/backgrounds/background9.png");
+        textures["background10"] = LoadTexture("../resource/graphic/backgrounds/background10.png");
         textures["settingBackground"] = LoadTexture("../resource/graphic/backgrounds/settingBackground.png");
+        textures["helpBackground"] = LoadTexture("../resource/graphic/backgrounds/helpBackground.png");
 
         // items
-        //textures["coin0"] = LoadTexture("resources/images/sprites/items/Coin_0.png");
-        //textures["coin1"] = LoadTexture("resources/images/sprites/items/Coin_1.png");
-        //textures["coin2"] = LoadTexture("resources/images/sprites/items/Coin_2.png");
-        //textures["coin3"] = LoadTexture("resources/images/sprites/items/Coin_3.png");
-        //textures["1UpMushroom"] = LoadTexture("resources/images/sprites/items/1UpMushroom.png");
-        //textures["3UpMoon"] = LoadTexture("resources/images/sprites/items/3UpMoon.png");
-        //textures["courseClearToken"] = LoadTexture("resources/images/sprites/items/CourseClearToken.png");
-        //textures["fireFlower0"] = LoadTexture("resources/images/sprites/items/FireFlower_0.png");
-        //textures["fireFlower1"] = LoadTexture("resources/images/sprites/items/FireFlower_1.png");
-        //textures["mushroom"] = LoadTexture("resources/images/sprites/items/Mushroom.png");
-        //textures["star"] = LoadTexture("resources/images/sprites/items/Star.png");
-        //textures["yoshiCoin0"] = LoadTexture("resources/images/sprites/items/YoshiCoin_0.png");
-        //textures["yoshiCoin1"] = LoadTexture("resources/images/sprites/items/YoshiCoin_1.png");
-        //textures["yoshiCoin2"] = LoadTexture("resources/images/sprites/items/YoshiCoin_2.png");
-        //textures["yoshiCoin3"] = LoadTexture("resources/images/sprites/items/YoshiCoin_3.png");
+        textures["coin0"] = LoadTexture("../resource/graphic/sprites/items/Coin_0.png");
+        textures["coin1"] = LoadTexture("../resource/graphic/sprites/items/Coin_1.png");
+        textures["coin2"] = LoadTexture("../resource/graphic/sprites/items/Coin_2.png");
+        textures["coin3"] = LoadTexture("../resource/graphic/sprites/items/Coin_3.png");
+        textures["1UpMushroom"] = LoadTexture("../resource/graphic/sprites/items/1UpMushroom.png");
+        textures["3UpMoon"] = LoadTexture("../resource/graphic/sprites/items/3UpMoon.png");
+        textures["courseClearToken"] = LoadTexture("../resource/graphic/sprites/items/CourseClearToken.png");
+        textures["fireFlower0"] = LoadTexture("../resource/graphic/sprites/items/FireFlower_0.png");
+        textures["fireFlower1"] = LoadTexture("../resource/graphic/sprites/items/FireFlower_1.png");
+        textures["mushroom"] = LoadTexture("../resource/graphic/sprites/items/Mushroom.png");
+        textures["star"] = LoadTexture("../resource/graphic/sprites/items/Star.png");
+        textures["yoshiCoin0"] = LoadTexture("../resource/graphic/sprites/items/YoshiCoin_0.png");
+        textures["yoshiCoin1"] = LoadTexture("../resource/graphic/sprites/items/YoshiCoin_1.png");
+        textures["yoshiCoin2"] = LoadTexture("../resource/graphic/sprites/items/YoshiCoin_2.png");
+        textures["yoshiCoin3"] = LoadTexture("../resource/graphic/sprites/items/YoshiCoin_3.png");
 
         // baddies
         textures["blueKoopaTroopa0R"] = LoadTexture("../resource/graphic/sprites/baddies/BlueKoopaTroopa_0.png");
@@ -337,7 +373,6 @@ void ResourceManager::loadTextures() {
         textures["guiAlfaLowerUpper"] = LoadTexture("../resource/graphic/gui/guiAlfaLowerUpper.png");
         textures["guiClock"] = LoadTexture("../resource/graphic/gui/guiClock.png");
         textures["guiCoin"] = LoadTexture("../resource/graphic/gui/guiCoin.png");
-        textures["guiCredits"] = LoadTexture("../resource/graphic/gui/guiCredits.png");
         textures["guiGameOver"] = LoadTexture("../resource/graphic/gui/guiGameOver.png");
         textures["guiLetters"] = LoadTexture("../resource/graphic/gui/guiLetters.png");
         textures["guiMario"] = LoadTexture("../resource/graphic/gui/guiMario.png");
@@ -368,40 +403,32 @@ void ResourceManager::loadTextures() {
         textures["gui3Up"] = LoadTexture("../resource/graphic/gui/gui3Up.png");
         textures["StartButton"] = LoadTexture("../resource/graphic/gui/StartButton.png");
         textures["credit"] = LoadTexture("../resource/graphic/gui/credit.png");
-        
+        textures["marioIcon"] = LoadTexture("../resource/graphic/gui/marioIcon.jpg");
+        textures["help"] = LoadTexture("../resource/graphic/gui/help.png");
+        textures["setting"] = LoadTexture("../resource/graphic/gui/setting.png");
+        textures["victory"] = LoadTexture("../resource/graphic/gui/victory.png");
+        textures["creditButton"] = LoadTexture("../resource/graphic/gui/creditButton.png");
+        textures["selectYourCharacter"] = LoadTexture("../resource/graphic/gui/selectYourCharacter.png");
+        textures["leaderboard"] = LoadTexture("../resource/graphic/gui/leaderboard.png");
+        textures["mapEditor"] = LoadTexture("../resource/graphic/gui/mapEditor.png");
+
 
         // UI elements
-            // Mute buttons
-        textures["muteButtonBlue"] = LoadTexture("../resource/graphic/ui/MuteButtonBlue.png");
-        textures["muteButtonGreen"] = LoadTexture("../resource/graphic/ui/MuteButtonGreen.png");
-        textures["muteButtonOrange"] = LoadTexture("../resource/graphic/ui/MuteButtonOrange.png");
-        textures["muteButtonWhite"] = LoadTexture("../resource/graphic/ui/MuteButtonWhite.png");
-        textures["muteButtonYellow"] = LoadTexture("../resource/graphic/ui/MuteButtonYellow.png");
         textures["muteButtonPress"] = LoadTexture("../resource/graphic/ui/muteButtonPress.png");
         textures["muteButtonRelease"] = LoadTexture("../resource/graphic/ui/muteButtonRelease.png");
         
             // Unmute buttons
-        textures["unmuteButtonBlue"] = LoadTexture("../resource/graphic/ui/UnmuteButtonBlue.png");
-        textures["unmuteButtonGreen"] = LoadTexture("../resource/graphic/ui/UnmuteButtonGreen.png");
-        textures["unmuteButtonOrange"] = LoadTexture("../resource/graphic/ui/UnmuteButtonOrange.png");
-        textures["unmuteButtonWhite"] = LoadTexture("../resource/graphic/ui/UnmuteButtonWhite.png");
-        textures["unmuteButtonYellow"] = LoadTexture("../resource/graphic/ui/UnmuteButtonYellow.png");
         textures["unmuteButtonPress"] = LoadTexture("../resource/graphic/ui/unmuteButtonPress.png");
         textures["unmuteButtonRelease"] = LoadTexture("../resource/graphic/ui/unmuteButtonRelease.png");
         
             // Save buttons
-        textures["saveButtonBlue"] = LoadTexture("../resource/graphic/ui/SaveButtonBlue.png");
-        textures["saveButtonGreen"] = LoadTexture("../resource/graphic/ui/SaveButtonGreen.png");
-        textures["saveButtonOrange"] = LoadTexture("../resource/graphic/ui/SaveButtonOrange.png");
-        textures["saveButtonWhite"] = LoadTexture("../resource/graphic/ui/SaveButtonWhite.png");
-        textures["saveButtonYellow"] = LoadTexture("../resource/graphic/ui/SaveButtonYellow.png");
+        // textures["saveButtonBlue"] = LoadTexture("../resource/graphic/ui/SaveButtonBlue.png");
+        // textures["saveButtonGreen"] = LoadTexture("../resource/graphic/ui/SaveButtonGreen.png");
+        // textures["saveButtonOrange"] = LoadTexture("../resource/graphic/ui/SaveButtonOrange.png");
+        // textures["saveButtonWhite"] = LoadTexture("../resource/graphic/ui/SaveButtonWhite.png");
+        // textures["saveButtonYellow"] = LoadTexture("../resource/graphic/ui/SaveButtonYellow.png");
         
             // Setting buttons
-        textures["settingButtonBlue"] = LoadTexture("../resource/graphic/ui/SettingButtonBlue.png");
-        textures["settingButtonGreen"] = LoadTexture("../resource/graphic/ui/SettingButtonGreen.png");
-        textures["settingButtonOrange"] = LoadTexture("../resource/graphic/ui/SettingButtonOrange.png");
-        textures["settingButtonWhite"] = LoadTexture("../resource/graphic/ui/SettingButtonWhite.png");
-        textures["settingButtonYellow"] = LoadTexture("../resource/graphic/ui/SettingButtonYellow.png");
         textures["settingButtonPress"] = LoadTexture("../resource/graphic/ui/settingButtonPress.png");
         textures["settingButtonRelease"] = LoadTexture("../resource/graphic/ui/settingButtonRelease.png");
         
@@ -414,9 +441,16 @@ void ResourceManager::loadTextures() {
         textures["menuButtonRelease"] = LoadTexture("../resource/graphic/ui/menuButtonRelease.png");
         textures["cancelButtonPress"] = LoadTexture("../resource/graphic/ui/cancelButtonPress.png");
         textures["cancelButtonRelease"] = LoadTexture("../resource/graphic/ui/cancelButtonRelease.png");
+        textures["acceptButtonPress"] = LoadTexture("../resource/graphic/ui/acceptButtonPress.png");
+        textures["acceptButtonRelease"] = LoadTexture("../resource/graphic/ui/acceptButtonRelease.png");
         textures["helpButtonPress"] = LoadTexture("../resource/graphic/ui/helpButtonPress.png");
         textures["helpButtonRelease"] = LoadTexture("../resource/graphic/ui/helpButtonRelease.png");
-        
+        textures["returnButtonPress"] = LoadTexture("../resource/graphic/ui/returnButtonPress.png");
+        textures["returnButtonRelease"] = LoadTexture("../resource/graphic/ui/returnButtonRelease.png");
+
+        textures["leaderButtonPress"] = LoadTexture("../resource/graphic/ui/leaderButtonPress.png");
+        textures["leaderButtonRelease"] = LoadTexture("../resource/graphic/ui/leaderButtonRelease.png");
+
             // Game control buttons
         textures["pauseButtonPress"] = LoadTexture("../resource/graphic/ui/pauseButtonPress.png");
         textures["pauseButtonRelease"] = LoadTexture("../resource/graphic/ui/pauseButtonRelease.png");
@@ -430,7 +464,28 @@ void ResourceManager::loadTextures() {
 
 // Implementation of loading sounds
 void ResourceManager::loadSounds() {
-    // Implement later
+    if (sounds.empty()){
+        sounds["1up"] = LoadSound( "../resource/audio/sfx/smw_1-up.wav" );
+        sounds["breakBlock"] = LoadSound( "../resource/audio/sfx/smw_break_block.wav" );
+        sounds["coin"] = LoadSound( "../resource/audio/sfx/smw_coin.wav" );
+        sounds["chuckWhistle"] = LoadSound( "../resource/audio/sfx/smw_chuck_whistle.wav" );
+        sounds["dragonCoin"] = LoadSound( "../resource/audio/sfx/smw_dragon_coin.wav" );
+        sounds["fireball"] = LoadSound( "../resource/audio/sfx/smw_fireball.wav" );
+        sounds["goalIrisOut"] = LoadSound( "../resource/audio/sfx/smw_goal_iris-out.wav" );
+        sounds["jump"] = LoadSound( "../resource/audio/sfx/smw_jump.wav" );
+        sounds["kick"] = LoadSound( "../resource/audio/sfx/smw_kick.wav" );
+        sounds["messageBlock"] = LoadSound( "../resource/audio/sfx/smw_message_block.wav" );
+        sounds["pause"] = LoadSound( "../resource/audio/sfx/smw_pause.wav" );
+        sounds["pipe"] = LoadSound( "../resource/audio/sfx/smw_pipe.wav" );
+        sounds["powerUp"] = LoadSound( "../resource/audio/sfx/smw_power-up.wav" );
+        sounds["powerUpAppears"] = LoadSound( "../resource/audio/sfx/smw_power-up_appears.wav" );
+        sounds["reserveItemRelease"] = LoadSound( "../resource/audio/sfx/smw_reserve_item_release.wav" );
+        sounds["reserveItemStore"] = LoadSound( "../resource/audio/sfx/smw_reserve_item_store.wav" );
+        sounds["ridingYoshi"] = LoadSound( "../resource/audio/sfx/smw_riding_yoshi.wav" );
+        sounds["shellRicochet"] = LoadSound( "../resource/audio/sfx/smw_shell_ricochet.wav" );
+        sounds["stomp"] = LoadSound( "../resource/audio/sfx/smw_stomp.wav" );
+        sounds["stompNoDamage"] = LoadSound( "../resource/audio/sfx/smw_stomp_no_damage.wav" );
+    }
 }
 
 // Implementation of loading musics
@@ -460,6 +515,7 @@ void ResourceManager::loadFonts() {
         fonts["fixedsys"] = LoadFont("../resource/font/Fixedsys500c.ttf");
         fonts["marioKartDS"] = LoadFont("../resource/font/Mario-Kart-DS.ttf");
         fonts["marioKartF2"] = LoadFont("../resource/font/mario_kart_f2.ttf");
+        fonts["SuperMario256"] = LoadFont("../resource/font/SuperMario256.ttf");
     }
 }
 
@@ -506,6 +562,29 @@ std::map<std::string, Music>& ResourceManager::getMusics() {
 
 std::map<std::string, Font>& ResourceManager::getFonts() {
     return fonts;
+}
+
+
+float ResourceManager::getMusicVolume() const {
+    return musicVolume;
+}
+
+float ResourceManager::getSfxVolume() const {
+    return sfxVolume;
+}
+
+void ResourceManager::setMusicVolume(float volume) {
+    musicVolume = volume;
+    for (auto& music : musics) {
+        SetMusicVolume(music.second, musicVolume);
+    }
+}
+
+void ResourceManager::setSfxVolume(float volume) {
+    sfxVolume = volume;
+    for (auto& sound : sounds) {
+        SetSoundVolume(sound.second, sfxVolume);
+    }
 }
 
 //Utility getters

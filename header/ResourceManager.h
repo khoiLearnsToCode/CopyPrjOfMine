@@ -17,8 +17,11 @@ private:
     std::map<std::string, Music> musics;
     std::map<std::string, Font> fonts;
 
+    float musicVolume; // Default music volume
+    float sfxVolume;   // Default SFX volume
+
     // Private constructor (prevents external instantiation)
-    ResourceManager() = default;
+    ResourceManager();
 
     // Private destructor
     ~ResourceManager() = default;
@@ -57,6 +60,11 @@ public:
     std::map<std::string, Sound>& getSounds();
     std::map<std::string, Music>& getMusics();
     std::map<std::string, Font>& getFonts();
+
+    float getMusicVolume() const;
+    float getSfxVolume() const;
+    void setMusicVolume(float volume);
+    void setSfxVolume(float volume);
 
     // Utility methods
     Texture2D& getTexture(const std::string& key);

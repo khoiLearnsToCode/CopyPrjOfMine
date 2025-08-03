@@ -35,6 +35,9 @@ void GameWindow::init() {
     if (!initialized) {
 
         InitWindow(width, height, title.c_str());
+        Image icon = LoadImage("../resource/graphic/gui/marioIcon.jpg");
+        SetWindowIcon(icon);
+        UnloadImage(icon);
 
         if (initAudio) {
             InitAudioDevice();
@@ -43,7 +46,7 @@ void GameWindow::init() {
 
         GameWorld::loadResources();
 
-        gw.initScreens();
+        gw.initScreensAndButtons();
         initialized = true;
 
         camera.target = Vector2{ 0, 0 };

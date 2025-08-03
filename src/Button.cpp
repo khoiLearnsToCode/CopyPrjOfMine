@@ -40,7 +40,16 @@ ButtonTexture::~ButtonTexture() {
 
 void ButtonTexture::draw() {
     update();
-    DrawTextureEx(btnTexture, pos, 0.0f, btnScale, WHITE);
+    
+    // Calculate offset to center the scaled texture
+    float scaledWidth = btnTexture.width * btnScale;
+    float scaledHeight = btnTexture.height * btnScale;
+    float offsetX = (btnTexture.width - scaledWidth) / 2.0f;
+    float offsetY = (btnTexture.height - scaledHeight) / 2.0f;
+    
+    Vector2 centeredPos = { pos.x + offsetX, pos.y + offsetY };
+    
+    DrawTextureEx(btnTexture, centeredPos, 0.0f, btnScale, WHITE);
 }
 
 void ButtonTexture::update() {
@@ -60,7 +69,17 @@ ButtonText::ButtonText(const std::string& text, Vector2 position, float scale, C
 
 void ButtonText::draw() {
     update();
-    DrawTextEx(font, text.c_str(), pos, fontSize * btnScale, 1, textColor);
+    
+    // Calculate offset to center the scaled text
+    Vector2 textSize = MeasureTextEx(font, text.c_str(), fontSize, 1);
+    float scaledWidth = textSize.x * btnScale;
+    float scaledHeight = textSize.y * btnScale;
+    float offsetX = (textSize.x - scaledWidth) / 2.0f;
+    float offsetY = (textSize.y - scaledHeight) / 2.0f;
+    
+    Vector2 centeredPos = { pos.x + offsetX, pos.y + offsetY };
+    
+    DrawTextEx(font, text.c_str(), centeredPos, fontSize * btnScale, 1, textColor);
 }
 
 void ButtonText::update() {
@@ -112,10 +131,6 @@ ButtonTextTexture::~ButtonTextTexture() {
 
 void ButtonTextTexture::draw() {
     update();  
-    //std::cout << "Position: " << pos.x << ", " << pos.y << std::endl;
-    //std:: cout << "Hitbox: " << hitbox.x << ", " << hitbox.y << ", " << hitbox.width << ", " << hitbox.height << std::endl;
-    //std::cout << "text: " << text << std::endl;
-    //std::cout << "fontSize: " << fontSize << std::endl;
     DrawTextureEx(*currentTexture, pos, 0.0f, 1.0f, WHITE);
     Vector2 textPos = { pos.x + (currentTexture->width - MeasureTextEx(font, text.c_str(), fontSize, 1).x) / 2.0f, pos.y + (currentTexture->height - fontSize) / 2.0f };
     DrawTextEx(font, text.c_str(), textPos, fontSize, 0, textColor);
@@ -124,18 +139,14 @@ void ButtonTextTexture::draw() {
 void ButtonTextTexture::update() {
     Vector2 mousePos = GetMousePosition();
     
-    if (CheckCollisionPointRec(mousePos, hitbox)) {
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-            currentTexture = &btnTexture2;
-            pos.y = truePos.y + 2.0f;
-        } else {
-            currentTexture = &btnTexture1;
-            pos.y = truePos.y;
-        }
+    if (CheckCollisionPointRec(mousePos, hitbox) && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        currentTexture = &btnTexture2;
+        pos.y = truePos.y + 2.0f;
     } 
     
     else {
         currentTexture = &btnTexture1;
         pos.y = truePos.y;
     }
+     
 }

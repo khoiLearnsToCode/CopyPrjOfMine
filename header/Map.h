@@ -7,9 +7,10 @@ class GameWorld;
 #include "json.hpp"
 #include "Tile.h"
 #include "Mario.h"
+#include "Baddie.h"
+#include "Tile.h"
 #include "Block.h"
 #include "Item.h"
-#include "Baddies.h"
 #include <vector>
 
 class Map : public virtual Drawable {
@@ -17,10 +18,9 @@ class Map : public virtual Drawable {
     std::vector<Tile*> untouchableTiles;
     std::vector<Tile*> touchableTiles;
     // std::vector<Tile*> frontScenarioTiles;
-    // std::vector<Block*> blocks;
-    // std::vector<Block*> messageBlocks;
-    //std::vector<Item*> items;
-    //std::vector<Item*> staticItems;
+    std::vector<Block*> blocks;
+    std::vector<Item*> items;
+    std::vector<Item*> staticItems;
     std::vector<Baddie*> baddies;
     std::vector<Baddie*> frontBaddies;  // auxiliary drawing vector for map placement
     std::vector<Baddie*> backBaddies;   // auxiliary drawing vector for map placement
@@ -42,12 +42,13 @@ class Map : public virtual Drawable {
     int maxMusicId;
     Color backgroundColor;
     Texture2D backgroundTexture;
-    //bool drawBlackScreen;
-    //float drawBlackScreenFadeAcum;
-    //float drawBlackScreenFadeTime;
+    bool drawBlackScreen;
+    float drawBlackScreenFadeAcum;
+    float drawBlackScreenFadeTime;
 
+    // Near sight vision effect for map3
+    Vector2 lastValidMarioPos;
     
-
     //bool parseBlocks;
     //bool parseItems;
     //bool parseBaddies;
@@ -72,23 +73,23 @@ public:
     void loadFromJsonFile(bool shouldLoadTestMap = false);
 
     void setMarioOffset(float marioOffset);
-    // void setDrawBlackScreen(bool drawBlackScreen);
-    // void setDrawMessage(bool drawMessage);
-    // void setMessage(std::string message);
+    void setDrawBlackScreen(bool drawBlackScreen);
     void setCamera(Camera2D* camera);
     void setGameWorld(GameWorld* gw);
 
     std::vector<Tile*>& getTiles();
-    //std::vector<Block*>& getBlocks();
-    //std::vector<Item*>& getItems();
-    //std::vector<Item*>& getStaticItems();
+    std::vector<Block*>& getBlocks();
+    std::vector<Item*>& getItems();
+    std::vector<Item*>& getStaticItems();
     std::vector<Baddie*>& getBaddies();
+    static const std::vector<Color> backgroundColorPallete;
+
     float getMaxWidth() const;
     float getMaxHeight() const;
 
     int getId() const;
 
-    //void playMusic() const;
+    void playMusic() const;
 
 // Reset the map to its initial state
     void reset();
@@ -98,6 +99,6 @@ public:
     void first();
     //void pauseGameToShowMessage() const;
 
-    //void eraseBaddieFromDrawingVectors(Baddie* baddie);
+    void eraseBaddieFromDrawingVectors(Baddie* baddie);
 
 };

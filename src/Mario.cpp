@@ -28,9 +28,11 @@ Mario::Mario( Vector2 pos, Vector2 dim, Vector2 vel, Color color, float speedX, 
     activationWidth(0),
     lives(5),
     coins(0),
+    coinsFromPreviousMap(0),
     yoshiCoins(0),
     points(0),
-    maxTime(0),
+    pointsFromPreviousMap(0),
+    maxTime(400.0f),  // Set default time limit to 400 seconds (typical Mario game time)
     ellapsedTime(0.0f),
     type(MARIO_TYPE_SMALL),
     reservedPowerUp(MARIO_TYPE_SMALL),
@@ -71,8 +73,8 @@ Mario::~Mario() = default;
 void Mario::update() {
     const float delta = GetFrameTime();
 
-    // Mario is running if Left Ctrl is hold and he is moving (velocity is non-zero)
-    running = (IsKeyDown(KEY_LEFT_CONTROL) && vel.x != 0.0f);
+    // Mario is running if Left Ctrl or Right Ctrl is hold and he is moving (velocity is non-zero)
+    running = ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && vel.x != 0.0f);
 
     if (running) {
         runningAcum += delta;
@@ -97,7 +99,7 @@ void Mario::update() {
     }
 
     // If walking: speedX, if running but not in full animation: maxSpeedX, if running in full animation: maxSpeedX * 1.3f
-    const float currentSpeedX = running ? (drawRunningFrames ? maxSpeedX * 1.3f : maxSpeedX) : speedX;
+    const float currentSpeedX = running ? (drawRunningFrames ? maxSpeedX * 1.1f : maxSpeedX) : speedX;
 
     const float currentFrameTime = running && state != SPRITE_STATE_DYING ? frameTimeRunning : frameTimeWalking;
 
@@ -107,6 +109,12 @@ void Mario::update() {
         state != SPRITE_STATE_DYING &&
         state != SPRITE_STATE_VICTORY &&
         state != SPRITE_STATE_WAITING_TO_NEXT_MAP) {
+        
+        // Add elapsed time to total played time before Mario dies from timeout
+        if (gw != nullptr) {
+            gw->addToTotalPlayedTime(ellapsedTime);
+        }
+        
         state = SPRITE_STATE_DYING;
         playPlayerDownMusicStream();
 		removeLives(1);
@@ -129,7 +137,7 @@ void Mario::update() {
     if (state == SPRITE_STATE_DYING) {
 		pos.y += dyingVelY * delta;
 		updateCollisionProbes();
-        dyingVelY += GameWorld::gravity;
+        dyingVelY += GameWorld::gravity * delta;
 	}
 
     if (invulnerable) {
@@ -222,12 +230,12 @@ void Mario::update() {
         }
         else {
 
-            if (IsKeyDown(KEY_RIGHT)) {
+            if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
                 facingDirection = DIRECTION_RIGHT;
                 movingAcum += delta * 2;
                 vel.x = currentSpeedX * (movingAcum < 1 ? movingAcum : 1);
             }
-            else if (IsKeyDown(KEY_LEFT)) {
+            else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
                 facingDirection = DIRECTION_LEFT;
                 movingAcum += delta * 2;
                 vel.x = -currentSpeedX * (movingAcum < 1 ? movingAcum : 1);
@@ -243,7 +251,7 @@ void Mario::update() {
             }
 
             if (state == SPRITE_STATE_ON_GROUND) {
-                if (IsKeyDown(KEY_DOWN)) {
+                if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
                     ducking = true;
                     vel.x = 0;
                 }
@@ -286,7 +294,7 @@ void Mario::update() {
             pos.x = pos.x + vel.x * delta;
             pos.y = pos.y + vel.y * delta;
 
-            vel.y += GameWorld::gravity;
+            vel.y += GameWorld::gravity * delta;
 
             if (static_cast<int>(lastPos.y) < static_cast<int>(pos.y)) {
                 state = SPRITE_STATE_FALLING;
@@ -488,27 +496,31 @@ CollisionType Mario::checkCollisionBaddie(Sprite* sprite) {
 }
 
 void Mario::drawHud() const {
-	std::map<std::string, Texture2D>& textures = ResourceManager::getInstance().getTextures();
+	std::map<std::string, Texture2D>& textures = ResourceManager::getInstance().getTextures(); // Getting textures from ResourceManager
 
-    DrawTexture(textures["guiMario"], 34, 32, WHITE);
-    DrawTexture(textures["guiX"], 54, 49, WHITE);
-    drawWhiteSmallNumber(lives < 0 ? 0 : lives, 68, 49);
+	// Left side of the screen
+	DrawTexture(textures["guiMario"], 34, 32, WHITE); // Draw Mario icon
+	DrawTexture(textures["guiX"], 54, 49, WHITE); // Draw "X" icon for lives
+	drawWhiteSmallNumber(lives < 0 ? 0 : lives, 68, 49); // Draw lives number
 
-    for (int i = 0; i < yoshiCoins; i++) {
+	// Draw Yoshi coins if needed
+    /*for (int i = 0; i < yoshiCoins; i++) {
         DrawTexture(textures["guiCoin"], 34 + textures["guiMario"].width + 16 + i * textures["guiCoin"].width, 32, WHITE);
-    }
+    }*/
 
-	DrawTexture(textures["guiCoin"], GetScreenWidth() - 115, 32, WHITE);
-    DrawTexture(textures["guiX"], GetScreenWidth() - 97, 34, WHITE);
-    drawWhiteSmallNumber(coins, GetScreenWidth() - 34 - getSmallNumberWidth(coins), 34);
-    drawWhiteSmallNumber(points, GetScreenWidth() - 34 - getSmallNumberWidth(points), 50);
+	int leftshift = 1225;
+	DrawTexture(textures["guiCoin"], GetScreenWidth() - 115 - leftshift, 32, WHITE); // Draw coin icon
+	DrawTexture(textures["guiX"], GetScreenWidth() - 97 - leftshift, 34, WHITE); // Draw "X" icon for coins
+	drawWhiteSmallNumber(coins, GetScreenWidth() - 34 - getSmallNumberWidth(coins) - leftshift, 34); // Draw coins number
+	drawWhiteSmallNumber(points, GetScreenWidth() - 34 - getSmallNumberWidth(points) - leftshift, 50); // Draw points number
 
 	int t = getRemainingTime();
 	t = t < 0 ? 0 : t;
 
-    DrawTexture(textures["guiTime"], GetScreenWidth() - 34 - 176, 32, WHITE);
-	drawYellowSmallNumber(t, GetScreenWidth() - 34 - 128 - getSmallNumberWidth(t), 50);
+	DrawTexture(textures["guiTime"], GetScreenWidth() - 34 - 176 - leftshift, 32, WHITE); // Draw time icon
+	drawYellowSmallNumber(t, GetScreenWidth() - 34 - 128 - getSmallNumberWidth(t) - leftshift, 50); // Draw remaining time
 
+	// Center top of the screen
     if (reservedPowerUp == MARIO_TYPE_SUPER) {
         DrawTexture(textures["mushroom"], GetScreenWidth() / 2 - textures["mushroom"].width / 2, 32, WHITE);
     } else if (reservedPowerUp == MARIO_TYPE_FLOWER) {
@@ -606,6 +618,10 @@ void Mario::setCoins(int coins) {
     this->coins = coins;
 }
 
+void Mario::setCoinsFromPreviousMap(int coinsFromPreviousMap) {
+    this->coinsFromPreviousMap = coinsFromPreviousMap;
+}
+
 void Mario::setYoshiCoins(int yoshiCoins) {
     this->yoshiCoins = yoshiCoins;
 }
@@ -614,8 +630,16 @@ void Mario::setPoints(int points) {
     this->points = points;
 }
 
+void Mario::setPointsFromPreviousMap(int pointsFromPreviousMap) {
+    this->pointsFromPreviousMap = pointsFromPreviousMap;
+}
+
 int Mario::getRemainingTime() const {
     return static_cast<int>(maxTime - ellapsedTime);
+}
+
+float Mario::getEllapsedTime() const {
+    return ellapsedTime;
 }
 
 void Mario::setMaxTime(float maxTime) {
@@ -650,12 +674,20 @@ int Mario::getCoins() const {
     return coins;
 }
 
+int Mario::getCoinsFromPreviousMap() const {
+    return coinsFromPreviousMap;
+}
+
 int Mario::getYoshiCoins() const {
     return yoshiCoins;
 }
 
 int Mario::getPoints() const {
     return points;
+}
+
+int Mario::getPointsFromPreviousMap() const {
+    return pointsFromPreviousMap;
 }
 
 void Mario::addLives(int lives) {
@@ -742,6 +774,10 @@ bool Mario::isTransitioning() const {
 }
 
 void Mario::reset(bool removePowerUps) {
+    reset(removePowerUps, true);
+}
+
+void Mario::reset(bool removePowerUps, bool resetPointsToSaved) {
 
     if (removePowerUps) {
         changeToSmall();
@@ -760,14 +796,23 @@ void Mario::reset(bool removePowerUps) {
     invulnerableTimeAcum = 0;
     invulnerableBlink = false;
     yoshiCoins = 0;
+    
+    // Reset points and coins to saved values from previous maps only when Mario dies (resetPointsToSaved = true)
+    // When advancing to next map, keep current points and coins (resetPointsToSaved = false)
+    if (resetPointsToSaved) {
+        points = pointsFromPreviousMap;
+        coins = coinsFromPreviousMap;
+    }
 
 }
 
 void Mario::resetAll() {
     lives = 5;
     coins = 0;
+    coinsFromPreviousMap = 0;
     yoshiCoins = 0;
     points = 0;
+    pointsFromPreviousMap = 0;
     reset(true);
 }
 
@@ -790,8 +835,6 @@ void Mario::playPlayerDownMusicStream() {
             }
         }
     }
-
-
 }
 
 void Mario::playGameOverMusicStream() {
